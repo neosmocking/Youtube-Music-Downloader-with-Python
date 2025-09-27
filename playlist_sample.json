@@ -1,0 +1,9 @@
+{
+  "name": "Playlist Musik Saya",
+  "description": "Kumpulan lagu favorit",
+  "urls": [
+    "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    "https://music.youtube.com/watch?v=9_bTl2vvYQg",
+    "https://youtu.be/ScMzIvxBSi4"
+  ]
+}

@@ -2,7 +2,7 @@ import os
 import sys
 import subprocess
 import yt_dlp
-from urllib.parse import urlparse, parse_qs
+from urllib.parse import urlparse
 import json
 
 def check_dependencies():
@@ -38,12 +38,13 @@ def read_playlist_file(file_path):
         with open(file_path, 'r', encoding='utf-8') as f:
             for line in f:
                 url = line.strip()
-                if url and not url.startswith('#'):
+                if url and not url.startswith('#'):  # Abaikan baris kosong dan komentar
                     urls.append(url)
     
     elif file_ext == '.json':
         with open(file_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
+            # Format JSON: {"urls": ["url1", "url2", ...]} atau langsung array
             if isinstance(data, list):
                 urls = data
             elif isinstance(data, dict) and 'urls' in data:
@@ -70,7 +71,7 @@ def download_mp3_with_metadata(url, output_dir="downloads"):
             {
                 'key': 'FFmpegExtractAudio',
                 'preferredcodec': 'mp3',
-                'preferredquality': '0',
+                'preferredquality': '0',  # 320kbps
             },
             {
                 'key': 'FFmpegMetadata',
@@ -122,83 +123,9 @@ def download_bulk(urls, output_dir="downloads"):
     print(f"📁 Total file di folder: {len(os.listdir(output_dir))}")
     print(f"📂 Lokasi penyimpanan: {os.path.abspath(output_dir)}")
 
-def download_youtube_playlist(playlist_url, output_dir="downloads"):
-    """
-    Download seluruh video dari YouTube/YouTube Music playlist
-    """
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-    
-    # Ekstrak playlist ID dari URL
-    parsed_url = urlparse(playlist_url)
-    query_params = parse_qs(parsed_url.query)
-    
-    if 'list' not in query_params:
-        raise ValueError("URL tidak mengandung parameter playlist! Pastikan URL mengandung '?list=...'")
-    
-    playlist_id = query_params['list'][0]
-    print(f"\n🎵 Playlist ID: {playlist_id}")
-    
-    ydl_opts = {
-        'format': 'bestaudio/best',
-        'outtmpl': f'{output_dir}/%(playlist_title)s/%(playlist_index)s - %(title)s.%(ext)s',
-        'postprocessors': [
-            {
-                'key': 'FFmpegExtractAudio',
-                'preferredcodec': 'mp3',
-                'preferredquality': '0',
-            },
-            {
-                'key': 'FFmpegMetadata',
-            },
-            {
-                'key': 'EmbedThumbnail',
-            }
-        ],
-        'writethumbnail': True,
-        'quiet': False,
-        'no_warnings': False,
-        'addmetadata': True,
-        'noplaylist': False,  # Pastikan playlist di-download
-        'yesplaylist': True,  # Paksa download playlist
-        'download_archive': os.path.join(output_dir, 'downloaded.txt'),  # Hindari duplikat
-    }
-    
-    try:
-        print(f"\n⬇️ Memproses Playlist: {playlist_url}")
-        print("🎵 Format: MP3 320kbps + Metadata + Thumbnail")
-        print("📁 Folder: Nama Playlist Otomatis")
-        
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(playlist_url, download=False)
-            
-            if 'entries' not in info:
-                raise ValueError("URL bukan playlist valid!")
-            
-            playlist_title = info['title']
-            print(f"\n📋 Playlist: {playlist_title}")
-            print(f"🎵 Jumlah lagu: {len(info['entries'])}")
-            
-            confirm = input("\nLanjutkan download? (y/n): ").strip().lower()
-            if confirm != 'y':
-                print("Download dibatalkan")
-                return
-            
-            ydl.download([playlist_url])
-            
-        print("\n✅ Download playlist selesai!")
-        print(f"📁 Folder playlist: {os.path.abspath(os.path.join(output_dir, playlist_title))}")
-        
-    except Exception as e:
-        print(f"\n❌ Error: {str(e)}")
-        print("\nTips pemecahan masalah:")
-        print("1. Pastikan URL playlist valid dan dapat diakses")
-        print("2. Coba gunakan VPN jika playlist diblokir")
-        print("3. Periksa koneksi internet")
-        print("4. Update yt-dlp: pip install --upgrade yt-dlp")
-
 def create_sample_files():
     """Membuat contoh file playlist"""
+    # Contoh playlist.txt
     with open("playlist_sample.txt", "w", encoding="utf-8") as f:
         f.write("# Playlist YouTube/YouTube Music\n")
         f.write("# Tambahkan URL di bawah ini (satu URL per baris)\n")
@@ -206,6 +133,7 @@ def create_sample_files():
         f.write("https://music.youtube.com/watch?v=9_bTl2vvYQg\n")
         f.write("https://youtu.be/ScMzIvxBSi4\n")
     
+    # Contoh playlist.json
     with open("playlist_sample.json", "w", encoding="utf-8") as f:
         json.dump({
             "name": "Playlist Musik Saya",
@@ -227,18 +155,17 @@ if __name__ == "__main__":
     
     print("=" * 70)
     print("YouTube & YouTube Music to MP3 Downloader (320kbps + Metadata)")
-    print("Versi Lengkap - Support Single, Bulk, dan Playlist Langsung")
+    print("Versi Bulk Download - Support .txt dan .json")
     print("=" * 70)
     
     while True:
         print("\nPilih mode download:")
         print("1. Download single URL")
         print("2. Download dari file playlist (.txt/.json)")
-        print("3. Download dari URL Playlist YouTube/YouTube Music")
-        print("4. Buat contoh file playlist")
-        print("5. Keluar")
+        print("3. Buat contoh file playlist")
+        print("4. Keluar")
         
-        choice = input("\nMasukkan pilihan (1-5): ").strip()
+        choice = input("\nMasukkan pilihan (1-4): ").strip()
         
         if choice == "1":
             video_url = input("\nPaste URL YouTube/YouTube Music: ").strip()
@@ -283,33 +210,12 @@ if __name__ == "__main__":
                 continue
         
         elif choice == "3":
-            playlist_url = input("\nPaste URL Playlist YouTube/YouTube Music: ").strip()
-            
-            if not playlist_url:
-                print("❌ URL tidak boleh kosong!")
-                continue
-            
-            parsed_url = urlparse(playlist_url)
-            valid_domains = ['youtube.com', 'www.youtube.com', 'music.youtube.com', 'youtu.be']
-            
-            if parsed_url.netloc not in valid_domains:
-                print("❌ URL tidak valid! Gunakan URL YouTube atau YouTube Music")
-                continue
-            
-            if 'list' not in parse_qs(parsed_url.query):
-                print("❌ URL bukan playlist! Pastikan URL mengandung '?list=...'")
-                continue
-            
-            download_youtube_playlist(playlist_url)
-            break
-        
-        elif choice == "4":
             create_sample_files()
             continue
         
-        elif choice == "5":
+        elif choice == "4":
             print("Keluar dari program...")
             sys.exit(0)
         
         else:
-            print("❌ Pilihan tidak valid! Masukkan angka 1-5")
+            print("❌ Pilihan tidak valid! Masukkan angka 1-4")

@@ -1,0 +1,5 @@
+# Playlist YouTube/YouTube Music
+# Tambahkan URL di bawah ini (satu URL per baris)
+https://music.youtube.com/watch?v=jtePSuQB5S0&list=LM
+https://music.youtube.com/watch?v=QHO5xZaUhwU&list=LM
+https://music.youtube.com/watch?v=VIKYDJtG0xY&list=LM
