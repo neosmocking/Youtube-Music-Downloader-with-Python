@@ -26,31 +26,34 @@ pip install yt-dlp
 # Windows: Download dari https://ffmpeg.org/download.html
 # macOS: brew install ffmpeg
 # Linux: sudo apt install ffmpeg
+```
 
-Cara Penggunaan
+## Cara Penggunaan
 
 1. Clone repositori ini:
-
+``
     git clone https://github.com/username/youtube-to-mp3.git    
-
+``
 2. Jalankan script:
-
+```
     python downloader.py
-    
+```    
 3. Paste URL YouTube saat diminta:
-
+```
     Paste URL YouTube: https://www.youtube.com/watch?v=example
-
+```
 4. Tunggu proses download dan konversi selesai
 
-Hasil File
+## Hasil File
+
 File MP3 akan memiliki:
 
-Nama file: Judul Lagu - Artis.mp3
-Metadata lengkap (judul, artis, album, tahun, cover)
-Kualitas audio: 320kbps
-Legal Disclaimer
+- Nama file: ``` Judul Lagu - Artis.mp3 ```
+- Metadata lengkap (judul, artis, album, tahun, cover)
+- Kualitas audio: 320kbps
+
+## Legal Disclaimer
 Script ini hanya untuk penggunaan pribadi dan edukasi. Harap hormati hak cipta dan hanya unduh konten yang Anda miliki atau memiliki izin untuk mengunduh. Penggunaan script ini melanggar Persyaratan Layanan YouTube.
 
-Lisensi
+## Lisensi
 MIT
